@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b7531f73c7a0f0d5c4e7e8690992afc1",
+    "content-hash": "03ac755e9c7c129602a8ed42c7d44100",
     "packages": [
         {
             "name": "brick/math",
@@ -1121,6 +1121,70 @@
                 "source": "https://github.com/inertiajs/inertia-laravel/tree/v2.0.3"
             },
             "time": "2025-06-20T07:38:21+00:00"
+        },
+        {
+            "name": "jurager/teams",
+            "version": "2.4.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Jurager/teams.git",
+                "reference": "759ef616f2f9f8a0799640ffe84dcd8ad6147947"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Jurager/teams/zipball/759ef616f2f9f8a0799640ffe84dcd8ad6147947",
+                "reference": "759ef616f2f9f8a0799640ffe84dcd8ad6147947",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "illuminate/bus": "^8.0|^9.0|^10.0|^11.0|^12.0",
+                "illuminate/http": "^8.0|^9.0|^10.0|^11.0|^12.0",
+                "illuminate/mail": "^8.0|^9.0|^10.0|^11.0|^12.0",
+                "illuminate/queue": "^8.0|^9.0|^10.0|^11.0|^12.0",
+                "illuminate/support": "^8.0|^9.0|^10.0|^11.0|^12.0",
+                "php": "^8.1"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "Teams": "Jurager\\Teams\\Support\\Facades\\Teams"
+                    },
+                    "providers": [
+                        "Jurager\\Teams\\TeamsServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Jurager\\Teams\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Yuri Gerassimov",
+                    "email": "jurager01@gmail.com"
+                }
+            ],
+            "description": "Laravel package to manage team functionality and operate with user permissions.",
+            "keywords": [
+                "Teams",
+                "abilities",
+                "auth",
+                "gropus",
+                "laravel",
+                "permissions"
+            ],
+            "support": {
+                "issues": "https://github.com/Jurager/teams/issues",
+                "source": "https://github.com/Jurager/teams/tree/2.4.8"
+            },
+            "time": "2025-04-16T04:24:12+00:00"
         },
         {
             "name": "laravel/framework",
