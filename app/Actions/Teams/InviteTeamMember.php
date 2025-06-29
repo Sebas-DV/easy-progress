@@ -11,7 +11,6 @@ use Jurager\Teams\Contracts\InvitesTeamMembers;
 use Jurager\Teams\Events\InvitingTeamMember;
 use Jurager\Teams\Mail\Invitation;
 use Jurager\Teams\Rules\Role;
-use Jurager\Teams\Teams;
 
 class InviteTeamMember implements InvitesTeamMembers
 {
@@ -20,9 +19,8 @@ class InviteTeamMember implements InvitesTeamMembers
      *
      * @param  object  $user  The user initiating the invitation
      * @param  object  $team  The team to invite the new member to
-     * @param  string $email  Email of the invited member
-     * @param  string|null $role  Role assigned to the invited member
-     * @return void
+     * @param  string  $email  Email of the invited member
+     * @param  string|null  $role  Role assigned to the invited member
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
@@ -43,9 +41,8 @@ class InviteTeamMember implements InvitesTeamMembers
      * Validate the invite member request.
      *
      * @param  object  $team  The team to invite the new member to
-     * @param  string $email  Email of the invited member
-     * @param  string|null $role  Role assigned to the invited member
-     * @return void
+     * @param  string  $email  Email of the invited member
+     * @param  string|null  $role  Role assigned to the invited member
      *
      * @throws \Illuminate\Validation\ValidationException
      */
@@ -64,7 +61,6 @@ class InviteTeamMember implements InvitesTeamMembers
      * Define validation rules for inviting a team member.
      *
      * @param  mixed  $team
-     * @return array
      */
     protected function rules(object $team): array
     {
@@ -80,14 +76,10 @@ class InviteTeamMember implements InvitesTeamMembers
 
     /**
      * Ensure the user is not already a member of the team.
-     *
-     * @param  object  $team
-     * @param  string $email
-     * @return Closure
      */
     protected function ensureUserIsNotAlreadyOnTeam(object $team, string $email): Closure
     {
-        return static function ($validator) use ($team, $email) {
+        return static function ($validator) use ($team, $email): void {
             if ($team->hasUserWithEmail($email)) {
                 $validator->errors()->add('email', __('This user already belongs to the team.'));
             }

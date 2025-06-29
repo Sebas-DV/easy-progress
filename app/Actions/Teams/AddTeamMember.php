@@ -18,9 +18,8 @@ class AddTeamMember implements AddsTeamMembers
      *
      * @param  object  $user  The user initiating the action
      * @param  object  $team  The team to which the member is being added
-     * @param  string $email  Email of the member to be added
-     * @param  string|null $role  Role of the member within the team
-     * @return void
+     * @param  string  $email  Email of the member to be added
+     * @param  string|null  $role  Role of the member within the team
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      * @throws ValidationException
@@ -40,14 +39,12 @@ class AddTeamMember implements AddsTeamMembers
         TeamMemberAdded::dispatch($team, $member);
     }
 
-
     /**
      * Validate the add member operation.
      *
      * @param  object  $team  The team to which the member is being added
-     * @param  string $email  Email of the member to be added
-     * @param  string|null $role  Role of the member within the team
-     * @return void
+     * @param  string  $email  Email of the member to be added
+     * @param  string|null  $role  Role of the member within the team
      *
      * @throws ValidationException
      */
@@ -66,9 +63,6 @@ class AddTeamMember implements AddsTeamMembers
 
     /**
      * Get the validation rules for adding a team member.
-     *
-     * @param  object  $team
-     * @return array
      */
     protected function rules(object $team): array
     {
@@ -80,14 +74,10 @@ class AddTeamMember implements AddsTeamMembers
 
     /**
      * Ensure the user is not already a member of the team.
-     *
-     * @param  mixed  $team
-     * @param  string $email
-     * @return Closure
      */
     protected function ensureUserIsNotAlreadyOnTeam(mixed $team, string $email): Closure
     {
-        return static function ($validator) use ($team, $email) {
+        return static function ($validator) use ($team, $email): void {
             if ($team->hasUserWithEmail($email)) {
                 $validator->errors()->add('email', __('This user already belongs to the team.'));
             }

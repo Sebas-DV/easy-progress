@@ -28,7 +28,7 @@ class DeleteUser implements DeletesUsers
      */
     public function delete(object $user): void
     {
-        DB::transaction(function () use ($user) {
+        DB::transaction(function () use ($user): void {
             $this->deleteTeams($user);
             $user->delete();
         });
@@ -41,7 +41,7 @@ class DeleteUser implements DeletesUsers
     {
         $user->teams()->detach();
 
-        $user->ownedTeams->each(function ($team) {
+        $user->ownedTeams->each(function ($team): void {
             $this->deletesTeams->delete($team);
         });
     }
