@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('permissions', static function (Blueprint $table) {
             $table->id();
-            $table->foreignId(config('teams.foreign_keys.team_id', 'team_id'))->constrained()->cascadeOnDelete();
+            $table->foreignUuid(config('teams.foreign_keys.team_id', 'team_id'))->constrained()->cascadeOnDelete();
             $table->foreignId('ability_id')->constrained()->cascadeOnDelete();
             $table->morphs('entity');
             $table->boolean('forbidden');

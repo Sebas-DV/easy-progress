@@ -13,13 +13,6 @@ class UpdateTeamMemberRole
 {
     /**
      * Update the role for the given team member.
-     *
-     * @param object $user
-     * @param object $team
-     * @param int $teamMemberId
-     * @param string $role
-     * @return void
-     *
      */
     public function update(object $user, object $team, int $teamMemberId, string $role): void
     {
@@ -41,9 +34,8 @@ class UpdateTeamMemberRole
     /**
      * Ensure that the team member is not the owner of the team.
      *
-     * @param  int  $teamMemberId The id member being removed
-     * @param  object  $team       The team to check ownership against
-     * @return void
+     * @param  int  $teamMemberId  The id member being removed
+     * @param  object  $team  The team to check ownership against
      *
      * @throws ValidationException
      */

@@ -3,10 +3,12 @@ import type { Config } from 'ziggy-js';
 
 export interface Auth {
     user: User;
+    teams: Team[] | null;
+    current_team: Team | null;
 }
 
 export interface BreadcrumbItem {
-    title: string;
+    title: string | React.ReactNode;
     href: string;
 }
 
@@ -40,5 +42,11 @@ export interface User {
     email_verified_at: string | null;
     created_at: string;
     updated_at: string;
-    [key: string]: unknown; // This allows for additional properties...
+    [key: string]: unknown;
+}
+
+export interface Team {
+    name: string;
+    user_id: string;
+    id: string;
 }

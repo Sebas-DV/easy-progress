@@ -13,10 +13,9 @@ class RemoveTeamMember implements RemovesTeamMembers
     /**
      * Remove a member from the specified team.
      *
-     * @param  object  $user       User initiating the removal
-     * @param  object  $team       The team to remove the member from
-     * @param  mixed  $teamMember The member to be removed
-     * @return void
+     * @param  object  $user  User initiating the removal
+     * @param  object  $team  The team to remove the member from
+     * @param  mixed  $teamMember  The member to be removed
      *
      * @throws AuthorizationException
      * @throws ValidationException
@@ -34,16 +33,15 @@ class RemoveTeamMember implements RemovesTeamMembers
     /**
      * Authorize that the user can remove the specified team member.
      *
-     * @param  object  $user       User initiating the removal
-     * @param  object  $team       The team from which the member is being removed
-     * @param  object  $teamMember The member being removed
-     * @return void
+     * @param  object  $user  User initiating the removal
+     * @param  object  $team  The team from which the member is being removed
+     * @param  object  $teamMember  The member being removed
      *
      * @throws AuthorizationException
      */
     protected function authorize(mixed $user, mixed $team, object $teamMember): void
     {
-        if ($user->id !== $teamMember->id && !Gate::forUser($user)->check('removeTeamMember', $team)) {
+        if ($user->id !== $teamMember->id && ! Gate::forUser($user)->check('removeTeamMember', $team)) {
             throw new AuthorizationException;
         }
     }
@@ -51,9 +49,8 @@ class RemoveTeamMember implements RemovesTeamMembers
     /**
      * Ensure that the team member is not the owner of the team.
      *
-     * @param  object  $teamMember The member being removed
-     * @param  object  $team       The team to check ownership against
-     * @return void
+     * @param  object  $teamMember  The member being removed
+     * @param  object  $team  The team to check ownership against
      *
      * @throws ValidationException
      */

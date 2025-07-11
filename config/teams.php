@@ -40,7 +40,7 @@ return [
     */
     'models' => [
         'user' => App\Models\User::class,
-        'team' => Jurager\Teams\Models\Team::class,
+        'team' => App\Models\Team::class,
         'ability' => Jurager\Teams\Models\Ability::class,
         'capability' => Jurager\Teams\Models\Capability::class,
         'group' => Jurager\Teams\Models\Group::class,
@@ -77,5 +77,5 @@ return [
     |--------------------------------------------------------------------------
     | Support's field in users table.  Support users has access to all teams
     */
-    'support_field' => 'is_support'
+    'support_field' => 'is_support',
 ];
