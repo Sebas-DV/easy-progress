@@ -50,3 +50,9 @@ export interface Team {
     user_id: string;
     id: string;
 }
+
+export interface ApiResponse<T> {
+    data: T;
+    message: string;
+    success: boolean;
+}
