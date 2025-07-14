@@ -9,12 +9,13 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 interface FormProps {
-  team: CreateTeamRequest;
+  team?: CreateTeamRequest;
   onSubmit: (data: CreateTeamRequest) => Promise<void>;
   className?: string;
+  id: string;
 }
 
-export default function ({ team, onSubmit, className }: FormProps) {
+export default function ({ team, onSubmit, className, id }: FormProps) {
   const form = useForm<z.infer<typeof teamSchema>>({
     resolver: zodResolver(teamSchema),
     defaultValues: team,
@@ -22,7 +23,7 @@ export default function ({ team, onSubmit, className }: FormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className={cn(className)}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className={cn(className)} id={id}>
         <FormField
           control={form.control}
           name={'name'}

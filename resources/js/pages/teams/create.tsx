@@ -1,12 +1,14 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import { useCreateTeam } from '@/hooks/queries/use-team';
 import TeamCreate from '@/pages/teams/partials/form';
 import { useTeamStore } from '@/stores/team-store';
+import { CreateTeamRequest } from '@/types/team';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Check, Edit2, Plus, X, XCircle } from 'lucide-react';
 import { useState } from 'react';
@@ -32,6 +34,8 @@ export default function TeamCreationModal() {
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editEmail, setEditEmail] = useState('');
   const [editRole, setEditRole] = useState(ROLE_OPTIONS[0].value);
+
+  const { mutate: createTeam } = useCreateTeam();
 
   const addMember = () => {
     const email = newMemberEmail.trim();
@@ -80,8 +84,16 @@ export default function TeamCreationModal() {
   };
 
   const handleSaveTeam = () => {
-    console.log('Saving team with members:', members);
-    reset();
+    //console.log('Saving team with members:', members);
+    //reset();
+  };
+
+  const handleSubmit = async (data: CreateTeamRequest) => {
+    createTeam(data, {
+      onSuccess: () => {
+        alert('Team created successfully');
+      },
+    });
   };
 
   const renderStepContent = () => (
@@ -101,21 +113,24 @@ export default function TeamCreationModal() {
                 <DialogTitle className="text-left text-2xl leading-tight font-bold sm:text-3xl lg:text-4xl">
                   Welcome.
                   <br />
-                  {"Let's create your team"}
+                  Let's create your team
                 </DialogTitle>
+                <DialogDescription>Create a new team to collaborate with others. Fill in your team details below to get started.</DialogDescription>
               </DialogHeader>
               <div className="flex-1 space-y-4 sm:space-y-6">
-                <TeamCreate className="space-y-6" />
+                <TeamCreate className="space-y-6" onSubmit={handleSubmit} id={'create-team'} />
               </div>
             </>
           ) : (
             <>
               <DialogHeader className="mb-6 sm:mb-8">
-                <DialogTitle className="text-left text-2xl leading-tight font-bold sm:text-3xl lg:text-4xl">
-                  Add Team Members
-                  <br />
-                  <span className="text-lg font-normal text-gray-600 sm:text-xl lg:text-2xl">Invite people to join your team</span>
-                </DialogTitle>
+                <DialogTitle className="text-left text-2xl leading-tight font-bold sm:text-3xl lg:text-4xl">Add Team Members</DialogTitle>
+                <DialogDescription>
+                  <p className="text-sm text-gray-600">
+                    Add team members by entering their email addresses and assigning roles. Team members will receive an invitation to join your team.
+                    You can modify their roles or remove them at any time.
+                  </p>
+                </DialogDescription>
               </DialogHeader>
               <div className="flex-1 space-y-4 sm:space-y-6">
                 <Card className="border-gray-200">
