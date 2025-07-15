@@ -1,3 +1,4 @@
+import AnimatedTextPanel from '@/components/animated-text-panel';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -11,6 +12,7 @@ import { useTeamStore } from '@/stores/team-store';
 import { CreateTeamRequest } from '@/types/team';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Check, Edit2, Plus, X, XCircle } from 'lucide-react';
+import { nanoid } from 'nanoid';
 import { useState } from 'react';
 
 interface Member {
@@ -36,6 +38,7 @@ export default function TeamCreationModal() {
   const [editRole, setEditRole] = useState(ROLE_OPTIONS[0].value);
 
   const { mutate: createTeam } = useCreateTeam();
+  const formId = nanoid();
 
   const addMember = () => {
     const email = newMemberEmail.trim();
@@ -83,17 +86,8 @@ export default function TeamCreationModal() {
     cancelEdit();
   };
 
-  const handleSaveTeam = () => {
-    //console.log('Saving team with members:', members);
-    //reset();
-  };
-
   const handleSubmit = async (data: CreateTeamRequest) => {
-    createTeam(data, {
-      onSuccess: () => {
-        alert('Team created successfully');
-      },
-    });
+    createTeam(data);
   };
 
   const renderStepContent = () => (
@@ -118,7 +112,7 @@ export default function TeamCreationModal() {
                 <DialogDescription>Create a new team to collaborate with others. Fill in your team details below to get started.</DialogDescription>
               </DialogHeader>
               <div className="flex-1 space-y-4 sm:space-y-6">
-                <TeamCreate className="space-y-6" onSubmit={handleSubmit} id={'create-team'} />
+                <TeamCreate className="space-y-6" onSubmit={handleSubmit} id={formId} />
               </div>
             </>
           ) : (
@@ -236,7 +230,7 @@ export default function TeamCreationModal() {
           <Button variant="outline" onClick={reset} className="flex-1 bg-transparent sm:min-w-[100px] sm:flex-none">
             Cancelar
           </Button>
-          <Button onClick={handleNext} className="flex-1 bg-black hover:bg-gray-800 sm:min-w-[100px] sm:flex-none">
+          <Button className="flex-1 bg-black hover:bg-gray-800 sm:min-w-[100px] sm:flex-none" form={formId} type={'submit'}>
             Siguiente
             <ArrowRight className="mr-2 h-4 w-4" />
           </Button>
@@ -247,7 +241,7 @@ export default function TeamCreationModal() {
             <ArrowLeft className="mr-2 h-4 w-4" />
             Atrás
           </Button>
-          <Button onClick={handleSaveTeam} className="flex-1 bg-black hover:bg-gray-800 sm:min-w-[120px] sm:flex-none">
+          <Button className="flex-1 bg-black hover:bg-gray-800 sm:min-w-[120px] sm:flex-none" form={formId} type={'submit'}>
             Save Team
           </Button>
         </>
@@ -264,15 +258,12 @@ export default function TeamCreationModal() {
             <div className="mt-auto flex flex-col-reverse gap-3 border-t pt-6 sm:flex-row sm:justify-end">{renderFooterButtons()}</div>
           </div>
           <div className="order-1 hidden min-h-[200px] flex-1 bg-gray-100 md:flex lg:order-2 lg:min-h-[600px]">
-            <img
-              src="/placeholder.svg?height=600&width=600"
-              alt="Team collaboration workspace"
-              className="h-full w-full object-cover"
-              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 600px"
-            />
+            <AnimatedTextPanel />
             <div className="absolute inset-0 bg-black/10 lg:hidden" />
           </div>
         </div>
+
+        <div></div>
       </DialogContent>
     </Dialog>
   );

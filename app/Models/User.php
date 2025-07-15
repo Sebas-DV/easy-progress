@@ -24,7 +24,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
-        'current_team_id'
+        'current_team_id',
     ];
 
     /**
@@ -50,7 +50,7 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
-    //Get current team with current_team_id
+    // Get current team with current_team_id
     public function currentTeam(): BelongsTo
     {
         return $this->belongsTo(Team::class, 'current_team_id');

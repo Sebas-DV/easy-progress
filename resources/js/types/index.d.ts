@@ -1,58 +1,49 @@
 import { LucideIcon } from 'lucide-react';
+import React from 'react';
 import type { Config } from 'ziggy-js';
 
 export interface Auth {
-    user: User;
-    teams: Team[] | null;
-    current_team: Team | null;
+  user: User;
+  teams: Team[] | null;
+  current_team: Team | null;
 }
 
 export interface BreadcrumbItem {
-    title: string | React.ReactNode;
-    href: string;
-}
-
-export interface NavGroup {
-    title: string;
-    items: NavItem[];
+  title: string | React.ReactNode;
+  href: string;
 }
 
 export interface NavItem {
-    title: string;
-    href?: string;
-    icon?: LucideIcon;
-    items?: NavItem[];
-    isActive?: boolean;
+  title: string;
+  href?: string;
+  icon?: LucideIcon;
+  items?: NavItem[];
+  isActive?: boolean;
 }
 
 export interface SharedData {
-    name: string;
-    quote: { message: string; author: string };
-    auth: Auth;
-    ziggy: Config & { location: string };
-    sidebarOpen: boolean;
-    [key: string]: unknown;
+  name: string;
+  quote: { message: string; author: string };
+  auth: Auth;
+  ziggy: Config & { location: string };
+  sidebarOpen: boolean;
+  [key: string]: unknown;
 }
 
 export interface User {
-    id: number;
-    name: string;
-    email: string;
-    avatar?: string;
-    email_verified_at: string | null;
-    created_at: string;
-    updated_at: string;
-    [key: string]: unknown;
+  id: number;
+  name: string;
+  email: string;
+  avatar?: string;
+  email_verified_at: string | null;
+  created_at: string;
+  updated_at: string;
+  [key: string]: unknown;
 }
 
 export interface Team {
-    name: string;
-    user_id: string;
-    id: string;
-}
-
-export interface ApiResponse<T> {
-    data: T;
-    message: string;
-    success: boolean;
+  description: string;
+  name: string;
+  user_id: string;
+  id: string;
 }

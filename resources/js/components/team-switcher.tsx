@@ -25,6 +25,8 @@ export function TeamSwitcher() {
 
   const [activeTeam, setActiveTeam] = React.useState(current_team);
 
+  console.log(current_team);
+
   if (!activeTeam) {
     return null;
   }
@@ -57,7 +59,7 @@ export function TeamSwitcher() {
           >
             <DropdownMenuLabel className="text-xs text-muted-foreground">Teams</DropdownMenuLabel>
             {teams?.map((team, index) => (
-              <DropdownMenuItem key={team.name} onClick={() => setActiveTeam(team)} className="gap-2 p-2">
+              <DropdownMenuItem key={team.id} onClick={() => setActiveTeam(team)} className="gap-2 p-2">
                 <div className="flex size-6 items-center justify-center rounded-md border">
                   <img
                     src={`https://ui-avatars.com/api/?name=${encodeURIComponent(team.name)}&background=ffffff&color=000000&size=128`}
