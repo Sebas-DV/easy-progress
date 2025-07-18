@@ -14,11 +14,16 @@ class TeamController extends Controller
     public function add(TeamCreateRequest $request)
     {
         try {
-            DB::transaction(function () use ($request) {
-                Team::create([
+            DB::transaction(function () use ($request)
+            {
+                $team = Team::create([
                     'name' => $request->name,
                     'description' => $request->description,
                     'user_id' => Auth::id(),
+                ]);
+
+                auth()->user()->update([
+                    'current_team_id' => $team->id,
                 ]);
             });
 

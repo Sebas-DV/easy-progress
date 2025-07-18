@@ -15,10 +15,13 @@ interface FormProps {
   id: string;
 }
 
-export default function ({ team, onSubmit, className, id }: FormProps) {
+export default function TeamCreate({ team, onSubmit, className, id }: FormProps) {
   const form = useForm<z.infer<typeof teamSchema>>({
     resolver: zodResolver(teamSchema),
-    defaultValues: team,
+    defaultValues: {
+      name: team?.name || '',
+      description: team?.description || '',
+    },
   });
 
   return (
@@ -42,7 +45,7 @@ export default function ({ team, onSubmit, className, id }: FormProps) {
           name={'description'}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Descripcion</FormLabel>
+              <FormLabel>Descripción</FormLabel>
               <FormControl>
                 <Textarea {...field} />
               </FormControl>

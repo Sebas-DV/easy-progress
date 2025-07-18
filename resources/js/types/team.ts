@@ -1,11 +1,13 @@
 export interface SwitchTeamRequest {
-    team: string;
+  team: string;
 }
 
 export interface CreateTeamRequest {
-    name: string;
+  name: string;
+  description?: string;
 }
 
 export interface UpdateTeamRequest {
-    name: string;
+  name: string;
+  description?: string;
 }
