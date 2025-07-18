@@ -223,7 +223,7 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
     return (
       <DropdownMenu open={isCompanyDropdownOpen} onOpenChange={setIsCompanyDropdownOpen}>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-auto p-0 font-normal text-foreground hover:bg-transparent focus:ring-0">
+          <Button variant="ghost" className="ml-4 h-auto p-0 font-normal text-foreground hover:bg-transparent focus:ring-0">
             <div className="flex items-center gap-2">
               <Building2 className="h-4 w-4" />
               <span className="max-w-[200px] truncate">{currentCompany?.name || 'Seleccionar Compañía'}</span>
@@ -270,7 +270,6 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
   };
 
   const customBreadcrumbs: BreadcrumbItemType[] = [
-    ...breadcrumbs,
     {
       title: renderCompanySelector(),
       href: '/dashboard',
@@ -281,7 +280,8 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
     <>
       <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-sidebar-border/50 px-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 sm:px-4 lg:px-6">
         <div className="flex min-w-0 flex-1 items-center gap-2">
-          <SidebarTrigger className="-ml-1" />
+          <SidebarTrigger />
+
           <div className="min-w-0 flex-1">
             <Breadcrumbs breadcrumbs={customBreadcrumbs} />
           </div>

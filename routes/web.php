@@ -13,7 +13,13 @@ Route::middleware(['auth', 'verified'])->group(function (): void {
         Route::get('/', function () {
             return Inertia::render('dashboard');
         })->name('dashboard');
+
+
+        Route::get('categories', function () {
+            return Inertia::render('categories/page');
+        })->name('categories.index');
     });
+
 
     Route::group(['prefix' => 'v1/backend'], function () {
         Route::group(['prefix' => 'teams'], function () {

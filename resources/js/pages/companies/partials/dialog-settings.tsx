@@ -3,7 +3,7 @@ import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -301,12 +301,6 @@ export default function BusinessConfigModal() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700">
-          <Settings className="h-4 w-4" />
-          Configurar Empresa
-        </Button>
-      </DialogTrigger>
       <DialogContent className="flex h-[85vh] max-w-6xl flex-col p-0">
         <div className="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4">
           <div className="flex items-center gap-3">
