@@ -16,6 +16,7 @@ export class TeamService {
             reject(new Error(Object.values(errors)[0] as string));
           },
           preserveScroll: true,
+          preserveState: false,
         },
       );
     });
@@ -34,6 +35,7 @@ export class TeamService {
             reject(new Error(Object.values(errors)[0] as string));
           },
           preserveScroll: false,
+          preserveState: false,
           fresh: true,
         },
       );

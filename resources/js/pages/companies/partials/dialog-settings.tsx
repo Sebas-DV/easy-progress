@@ -12,7 +12,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import {
@@ -35,81 +34,114 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { useCompanyStore } from '@/stores/company-store';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 import timezone from 'timezones-list';
+import { withMask } from 'use-mask-input';
+import { z } from 'zod';
 
-interface BusinessConfig {
-  ruc: string;
-  name: string;
-  commercial_name: string;
-  address: string;
-  phone: string;
-  mobile: string;
-  email: string;
-  website: string;
-  taxpayer_type: 'natural' | 'juridica';
-  obligated_accounting: boolean;
-  special_taxpayer_number: string;
-  special_taxpayer_date: Date | null;
-  retention_agent_resolution: string;
-  retention_agent_date: Date | null;
-  is_artisan: boolean;
-  artisan_number: string;
-  electronic_signature_file: string;
-  electronic_signature_password: string;
-  electronic_signature_expiry: Date | null;
-  sri_environment: '1' | '2';
-  sri_token: string;
-  sri_token_expiry: Date | null;
-  logo: string;
-  currency: string;
-  timezone: string;
-  is_active: boolean;
-  settings: Record<string, any>;
+const businessConfigSchema = z.object({
+  ruc: z
+    .string()
+    .min(13)
+    .max(13)
+    .regex(/^\d{13}$/, 'RUC debe tener 13 dígitos'),
+  name: z.string().min(1, 'Razón social es requerida'),
+  commercial_name: z.string().optional(),
+  address: z.string().min(1, 'Dirección es requerida'),
+  phone: z.string().optional(),
+  mobile: z.string().optional(),
+  email: z.string().email('Email inválido'),
+  website: z.string().url('URL inválida').optional().or(z.literal('')),
+  taxpayer_type: z.enum(['natural', 'juridica']),
+  obligated_accounting: z.boolean(),
+  special_taxpayer_number: z.string().optional(),
+  special_taxpayer_date: z.date().nullable(),
+  retention_agent_resolution: z.string().optional(),
+  retention_agent_date: z.date().nullable(),
+  is_artisan: z.boolean(),
+  artisan_number: z.string().optional(),
+  electronic_signature_file: z.string().optional(),
+  electronic_signature_password: z.string().optional(),
+  electronic_signature_expiry: z.date().nullable(),
+  sri_environment: z.enum(['1', '2']),
+  sri_token: z.string().optional(),
+  sri_token_expiry: z.date().nullable(),
+  logo: z.string().optional(),
+  currency: z.string(),
+  timezone: z.string(),
+  is_active: z.boolean(),
+});
+
+type BusinessConfig = z.infer<typeof businessConfigSchema>;
+
+interface Tab {
+  id: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  description: string;
+  completed: boolean;
+  hasErrors: boolean;
+}
+
+interface DatePickerProps {
+  date: Date | null;
+  onDateChange: (date: Date | null) => void;
+  placeholder?: string;
+}
+
+interface FileUploadProps {
+  label: string;
+  accept: string;
+  onChange: (file: string) => void;
+  currentFile?: string;
+  hasError?: boolean;
+}
+
+interface StatusBadgeProps {
+  status: 'success' | 'warning' | 'error' | 'info';
+  children: React.ReactNode;
 }
 
 export default function BusinessConfigModal() {
-  const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('basic');
-  const [config, setConfig] = useState<BusinessConfig>({
-    ruc: '1792146739001',
-    name: 'TechCorp S.A.',
-    commercial_name: 'TechCorp',
-    address: 'Av. Amazonas 123 y Colón, Quito, Ecuador',
-    phone: '02-2345678',
-    mobile: '0987654321',
-    email: 'contacto@techcorp.com',
-    website: 'https://www.techcorp.com',
-    taxpayer_type: 'juridica',
-    obligated_accounting: true,
-    special_taxpayer_number: '',
-    special_taxpayer_date: null,
-    retention_agent_resolution: '',
-    retention_agent_date: null,
-    is_artisan: false,
-    artisan_number: '',
-    electronic_signature_file: 'techcorp_signature.p12',
-    electronic_signature_password: '',
-    electronic_signature_expiry: new Date('2024-12-31'),
-    sri_environment: '2',
-    sri_token: '',
-    sri_token_expiry: null,
-    logo: 'techcorp_logo.png',
-    currency: 'USD',
-    timezone: 'America/Guayaquil',
-    is_active: true,
-    settings: {},
+  const { setIsOpen, isOpen } = useCompanyStore();
+
+  const form = useForm<BusinessConfig>({
+    resolver: zodResolver(businessConfigSchema),
+    defaultValues: {
+      ruc: '1792146739001',
+      name: 'TechCorp S.A.',
+      commercial_name: 'TechCorp',
+      address: 'Av. Amazonas 123 y Colón, Quito, Ecuador',
+      phone: '02-2345678',
+      mobile: '0987654321',
+      email: 'contacto@techcorp.com',
+      website: 'https://www.techcorp.com',
+      taxpayer_type: 'juridica',
+      obligated_accounting: true,
+      special_taxpayer_number: '',
+      special_taxpayer_date: null,
+      retention_agent_resolution: '',
+      retention_agent_date: null,
+      is_artisan: false,
+      artisan_number: '',
+      electronic_signature_file: 'techcorp_signature.p12',
+      electronic_signature_password: '',
+      electronic_signature_expiry: new Date('2024-12-31'),
+      sri_environment: '2',
+      sri_token: '',
+      sri_token_expiry: null,
+      logo: 'techcorp_logo.png',
+      currency: 'USD',
+      timezone: 'America/Guayaquil',
+      is_active: true,
+    },
   });
 
-  const updateConfig = (field: keyof BusinessConfig, value: any) => {
-    setConfig((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleSave = () => {
-    console.log('Guardando configuración:', config);
-    setOpen(false);
-  };
-
-  const tabs = [
+  const tabs: Tab[] = [
     {
       id: 'basic',
       label: 'Información Básica',
@@ -147,33 +179,25 @@ export default function BusinessConfigModal() {
   const completedTabs = tabs.filter((tab) => tab.completed).length;
   const progressPercentage = (completedTabs / tabs.length) * 100;
 
-  // Función para obtener el estado de la firma digital
   const getSignatureStatus = () => {
-    if (!config.electronic_signature_file) return { status: 'error', label: 'No configurada' };
-    if (config.electronic_signature_expiry && config.electronic_signature_expiry < new Date()) {
-      return { status: 'warning', label: 'Expirada' };
+    const values = form.getValues();
+    if (!values.electronic_signature_file) return { status: 'error' as const, label: 'No configurada' };
+    if (values.electronic_signature_expiry && values.electronic_signature_expiry < new Date()) {
+      return { status: 'warning' as const, label: 'Expirada' };
     }
-    return { status: 'success', label: 'Configurada' };
+    return { status: 'success' as const, label: 'Configurada' };
   };
 
-  // Función para obtener el estado del token SRI
   const getTokenStatus = () => {
-    if (!config.sri_token) return { status: 'error', label: 'No configurado' };
-    if (config.sri_token_expiry && config.sri_token_expiry < new Date()) {
-      return { status: 'warning', label: 'Expirado' };
+    const values = form.getValues();
+    if (!values.sri_token) return { status: 'error' as const, label: 'No configurado' };
+    if (values.sri_token_expiry && values.sri_token_expiry < new Date()) {
+      return { status: 'warning' as const, label: 'Expirado' };
     }
-    return { status: 'success', label: 'Válido' };
+    return { status: 'success' as const, label: 'Válido' };
   };
 
-  const DatePicker = ({
-    date,
-    onDateChange,
-    placeholder = 'Seleccionar fecha',
-  }: {
-    date: Date | null;
-    onDateChange: (date: Date | null) => void;
-    placeholder?: string;
-  }) => (
+  const DatePicker: React.FC<DatePickerProps> = ({ date, onDateChange, placeholder = 'Seleccionar fecha' }) => (
     <Popover>
       <PopoverTrigger asChild>
         <Button
@@ -188,24 +212,12 @@ export default function BusinessConfigModal() {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
-        <Calendar mode="single" selected={date || undefined} onSelect={onDateChange} initialFocus />
+        <Calendar mode="single" selected={date || undefined} onSelect={(newDate) => onDateChange(newDate || null)} required />
       </PopoverContent>
     </Popover>
   );
 
-  const FileUpload = ({
-    label,
-    accept,
-    onChange,
-    currentFile,
-    hasError = false,
-  }: {
-    label: string;
-    accept: string;
-    onChange: (file: string) => void;
-    currentFile?: string;
-    hasError?: boolean;
-  }) => (
+  const FileUpload: React.FC<FileUploadProps> = ({ label, accept, onChange, currentFile, hasError = false }) => (
     <div className="space-y-2">
       <Label className="text-sm font-medium text-gray-700">{label}</Label>
       <div className="flex items-center space-x-2">
@@ -217,7 +229,13 @@ export default function BusinessConfigModal() {
         >
           {currentFile || 'Ningún archivo seleccionado'}
         </div>
-        <Button variant="outline" size="sm" className="flex items-center gap-2 border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="flex items-center gap-2 border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50"
+          onClick={() => onChange('archivo_seleccionado.p12')}
+        >
           <Upload className="h-4 w-4" />
           Subir
         </Button>
@@ -232,7 +250,7 @@ export default function BusinessConfigModal() {
     </div>
   );
 
-  const StatusBadge = ({ status, children }: { status: 'success' | 'warning' | 'error' | 'info'; children: React.ReactNode }) => {
+  const StatusBadge: React.FC<StatusBadgeProps> = ({ status, children }) => {
     const variants = {
       success: 'bg-green-100 text-green-800 border-green-200',
       warning: 'bg-yellow-100 text-yellow-800 border-yellow-200',
@@ -272,25 +290,27 @@ export default function BusinessConfigModal() {
             <div className="space-y-3 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-gray-600">RUC:</span>
-                <span className="font-mono text-xs font-medium">{config.ruc}</span>
+                <span className="font-mono text-xs font-medium">{form.getValues('ruc')}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-gray-600">Ambiente SRI:</span>
-                <StatusBadge status={config.sri_environment === '2' ? 'success' : 'warning'}>
-                  {config.sri_environment === '2' ? 'Producción' : 'Pruebas'}
+                <StatusBadge status={form.getValues('sri_environment') === '2' ? 'success' : 'warning'}>
+                  {form.getValues('sri_environment') === '2' ? 'Producción' : 'Pruebas'}
                 </StatusBadge>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-gray-600">Firma Digital:</span>
-                <StatusBadge status={signatureStatus.status as any}>{signatureStatus.label}</StatusBadge>
+                <StatusBadge status={signatureStatus.status}>{signatureStatus.label}</StatusBadge>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-gray-600">Token SRI:</span>
-                <StatusBadge status={tokenStatus.status as any}>{tokenStatus.label}</StatusBadge>
+                <StatusBadge status={tokenStatus.status}>{tokenStatus.label}</StatusBadge>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-gray-600">Estado:</span>
-                <StatusBadge status={config.is_active ? 'success' : 'error'}>{config.is_active ? 'Activa' : 'Inactiva'}</StatusBadge>
+                <StatusBadge status={form.getValues('is_active') ? 'success' : 'error'}>
+                  {form.getValues('is_active') ? 'Activa' : 'Inactiva'}
+                </StatusBadge>
               </div>
             </div>
           </div>
@@ -299,8 +319,13 @@ export default function BusinessConfigModal() {
     );
   };
 
+  const onSubmit = (data: BusinessConfig) => {
+    console.log('Guardando configuración:', data);
+    setIsOpen(false);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="flex h-[85vh] max-w-6xl flex-col p-0">
         <div className="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4">
           <div className="flex items-center gap-3">
@@ -313,11 +338,11 @@ export default function BusinessConfigModal() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Button onClick={handleSave} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700">
+            <Button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700">
               <Save className="h-4 w-4" />
               Guardar
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => setOpen(false)} className="text-gray-500 hover:bg-gray-100 hover:text-gray-700">
+            <Button variant="ghost" size="sm" onClick={() => setIsOpen(false)} className="text-gray-500 hover:bg-gray-100 hover:text-gray-700">
               <X className="h-4 w-4" />
             </Button>
           </div>
@@ -333,515 +358,606 @@ export default function BusinessConfigModal() {
           <Progress value={progressPercentage} className="h-2 bg-gray-200" />
         </div>
 
-        <div className="-mt-4 flex flex-1 overflow-hidden">
-          <div className="flex w-80 flex-col border-r border-gray-200 bg-gray-50">
-            <div className="flex-1 p-4">
-              <nav className="space-y-2">
-                {tabs.map((tab) => {
-                  const Icon = tab.icon;
-                  const isActive = activeTab === tab.id;
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
-                      className={cn(
-                        'relative flex w-full items-start gap-3 rounded-lg p-3 text-left transition-all duration-200',
-                        isActive
-                          ? 'bg-blue-600 text-white shadow-md'
-                          : 'border border-transparent text-gray-700 hover:border-gray-200 hover:bg-white hover:shadow-sm',
-                      )}
-                    >
-                      <Icon className={cn('mt-0.5 h-4 w-4 flex-shrink-0', isActive ? 'text-white' : 'text-gray-500')} />
-                      <div className="min-w-0 flex-1">
-                        <div className="text-sm font-medium">{tab.label}</div>
-                        <div className={cn('mt-0.5 text-xs', isActive ? 'text-blue-100' : 'text-gray-500')}>{tab.description}</div>
-                      </div>
-                      <div className="flex flex-col items-center gap-1">
-                        {tab.completed && <Check className={cn('h-3 w-3 flex-shrink-0', isActive ? 'text-white' : 'text-green-500')} />}
-                        {tab.hasErrors && <AlertTriangle className={cn('h-3 w-3 flex-shrink-0', isActive ? 'text-white' : 'text-red-500')} />}
-                      </div>
-                    </button>
-                  );
-                })}
-              </nav>
-            </div>
-
-            {/*  <div className="h-80 border-t border-gray-200">
-              <ConfigSummary />
-            </div>*/}
-          </div>
-
-          {/* Área de contenido principal */}
-          <div className="flex-1 overflow-hidden">
-            <ScrollArea className="h-full">
-              <div className="p-6">
-                {/* Información Básica */}
-                {activeTab === 'basic' && (
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-3 border-b border-gray-200 pb-4">
-                      <div className="rounded-lg bg-blue-100 p-2">
-                        <Building2 className="h-5 w-5 text-blue-600" />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900">Información Básica</h3>
-                        <p className="text-sm text-gray-600">Datos generales de identificación de la empresa</p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div className="space-y-2">
-                          <Label htmlFor="ruc" className="text-sm font-medium text-gray-700">
-                            RUC <span className="text-red-500">*</span>
-                          </Label>
-                          <Input
-                            id="ruc"
-                            value={config.ruc}
-                            onChange={(e) => updateConfig('ruc', e.target.value)}
-                            placeholder="1234567890001"
-                            maxLength={13}
-                            className="h-10 border-gray-200 font-mono focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="name" className="text-sm font-medium text-gray-700">
-                            Razón Social <span className="text-red-500">*</span>
-                          </Label>
-                          <Input
-                            id="name"
-                            value={config.name}
-                            onChange={(e) => updateConfig('name', e.target.value)}
-                            placeholder="Empresa S.A."
-                            className="h-10 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="commercial_name" className="text-sm font-medium text-gray-700">
-                          Nombre Comercial
-                        </Label>
-                        <Input
-                          id="commercial_name"
-                          value={config.commercial_name}
-                          onChange={(e) => updateConfig('commercial_name', e.target.value)}
-                          placeholder="Mi Empresa"
-                          className="h-10 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="address" className="text-sm font-medium text-gray-700">
-                          Dirección <span className="text-red-500">*</span>
-                        </Label>
-                        <Textarea
-                          id="address"
-                          value={config.address}
-                          onChange={(e) => updateConfig('address', e.target.value)}
-                          placeholder="Av. Principal 123 y Secundaria, Quito, Ecuador"
-                          rows={3}
-                          className="resize-none border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div className="space-y-2">
-                          <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
-                            Teléfono
-                          </Label>
-                          <Input
-                            id="phone"
-                            value={config.phone}
-                            onChange={(e) => updateConfig('phone', e.target.value)}
-                            placeholder="02-1234567"
-                            className="h-10 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="mobile" className="text-sm font-medium text-gray-700">
-                            Celular
-                          </Label>
-                          <Input
-                            id="mobile"
-                            value={config.mobile}
-                            onChange={(e) => updateConfig('mobile', e.target.value)}
-                            placeholder="0987654321"
-                            className="h-10 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div className="space-y-2">
-                          <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                            Email <span className="text-red-500">*</span>
-                          </Label>
-                          <Input
-                            id="email"
-                            type="email"
-                            value={config.email}
-                            onChange={(e) => updateConfig('email', e.target.value)}
-                            placeholder="contacto@empresa.com"
-                            className="h-10 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="website" className="text-sm font-medium text-gray-700">
-                            Sitio Web
-                          </Label>
-                          <Input
-                            id="website"
-                            value={config.website}
-                            onChange={(e) => updateConfig('website', e.target.value)}
-                            placeholder="https://www.empresa.com"
-                            className="h-10 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {activeTab === 'tributary' && (
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-3 border-b border-gray-200 pb-4">
-                      <div className="rounded-lg bg-primary/20 p-2">
-                        <FileText className="h-5 w-5 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold">Información Tributaria</h3>
-                        <p className="text-sm text-gray-600">Configuración tributaria y obligaciones fiscales</p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-6">
-                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                        <div className="space-y-2">
-                          <Label className="text-sm font-medium text-gray-700">Tipo de Contribuyente</Label>
-                          <Select
-                            value={config.taxpayer_type}
-                            onValueChange={(value: 'natural' | 'juridica') => updateConfig('taxpayer_type', value)}
-                          >
-                            <SelectTrigger className="h-10 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="natural">Persona Natural</SelectItem>
-                              <SelectItem value="juridica">Persona Jurídica</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="flex items-center space-x-3 pt-6">
-                          <Switch
-                            id="obligated_accounting"
-                            checked={config.obligated_accounting}
-                            onCheckedChange={(checked) => updateConfig('obligated_accounting', checked)}
-                          />
-                          <Label htmlFor="obligated_accounting" className="text-sm font-medium text-gray-700">
-                            Obligado a llevar contabilidad
-                          </Label>
-                        </div>
-                      </div>
-
-                      <Separator />
-
-                      <div className="space-y-4">
-                        <h4 className="flex items-center gap-4 font-semibold text-gray-900">
-                          <Shield className="h-4 w-4 text-primary" />
-                          Contribuyente Especial
-                        </h4>
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                          <div className="space-y-2">
-                            <Label htmlFor="special_taxpayer_number" className="text-sm font-medium text-gray-700">
-                              Número de Resolución
-                            </Label>
-                            <Input
-                              id="special_taxpayer_number"
-                              value={config.special_taxpayer_number}
-                              onChange={(e) => updateConfig('special_taxpayer_number', e.target.value)}
-                              placeholder="NAC-DGERCGC12-00000001"
-                              className="h-10 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                            />
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <div className="-mt-4 flex flex-1 overflow-hidden">
+              <div className="flex w-80 flex-col border-r border-gray-200 bg-gray-50">
+                <div className="flex-1 p-4">
+                  <nav className="space-y-2">
+                    {tabs.map((tab) => {
+                      const Icon = tab.icon;
+                      const isActive = activeTab === tab.id;
+                      return (
+                        <button
+                          key={tab.id}
+                          onClick={() => setActiveTab(tab.id)}
+                          className={cn(
+                            'relative flex w-full items-start gap-3 rounded-lg p-3 text-left transition-all duration-200',
+                            isActive
+                              ? 'bg-blue-600 text-white shadow-md'
+                              : 'border border-transparent text-gray-700 hover:border-gray-200 hover:bg-white hover:shadow-sm',
+                          )}
+                        >
+                          <Icon className={cn('mt-0.5 h-4 w-4 flex-shrink-0', isActive ? 'text-white' : 'text-gray-500')} />
+                          <div className="min-w-0 flex-1">
+                            <div className="text-sm font-medium">{tab.label}</div>
+                            <div className={cn('mt-0.5 text-xs', isActive ? 'text-blue-100' : 'text-gray-500')}>{tab.description}</div>
                           </div>
-                          <div className="space-y-2">
-                            <Label className="text-sm font-medium text-gray-700">Fecha de Resolución</Label>
-                            <DatePicker date={config.special_taxpayer_date} onDateChange={(date) => updateConfig('special_taxpayer_date', date)} />
+                          <div className="flex flex-col items-center gap-1">
+                            {tab.completed && <Check className={cn('h-3 w-3 flex-shrink-0', isActive ? 'text-white' : 'text-green-500')} />}
+                            {tab.hasErrors && <AlertTriangle className={cn('h-3 w-3 flex-shrink-0', isActive ? 'text-white' : 'text-red-500')} />}
                           </div>
-                        </div>
-                      </div>
+                        </button>
+                      );
+                    })}
+                  </nav>
+                </div>
 
-                      <Separator />
-
-                      <div className="space-y-4">
-                        <h4 className="flex items-center gap-4 font-semibold">
-                          <CreditCard className="h-4 w-4 text-primary" />
-                          Agente de Retención
-                        </h4>
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                          <div className="space-y-2">
-                            <Label htmlFor="retention_agent_resolution" className="text-sm font-medium text-gray-700">
-                              Resolución de Agente de Retención
-                            </Label>
-                            <Input
-                              id="retention_agent_resolution"
-                              value={config.retention_agent_resolution}
-                              onChange={(e) => updateConfig('retention_agent_resolution', e.target.value)}
-                              placeholder="NAC-DGERCGC12-00000002"
-                              className="h-10 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label className="text-sm font-medium text-gray-700">Fecha de Resolución</Label>
-                            <DatePicker date={config.retention_agent_date} onDateChange={(date) => updateConfig('retention_agent_date', date)} />
-                          </div>
-                        </div>
-                      </div>
-
-                      <Separator />
-
-                      <div className="space-y-4">
-                        <h4 className="flex items-center gap-4 font-semibold">
-                          <Settings className="h-4 w-4 text-primary" />
-                          Calificación Artesanal
-                        </h4>
-                        <div className="flex items-center space-x-3">
-                          <Switch id="is_artisan" checked={config.is_artisan} onCheckedChange={(checked) => updateConfig('is_artisan', checked)} />
-                          <Label htmlFor="is_artisan" className="text-sm font-medium text-gray-700">
-                            Es Artesano
-                          </Label>
-                        </div>
-                        {config.is_artisan && (
-                          <div className="space-y-2 rounded-md border p-4 pl-4">
-                            <Label htmlFor="artisan_number" className="text-sm font-medium text-gray-700">
-                              Número de Calificación Artesanal
-                            </Label>
-                            <Input
-                              id="artisan_number"
-                              value={config.artisan_number}
-                              onChange={(e) => updateConfig('artisan_number', e.target.value)}
-                              placeholder="JNDA-2023-001"
-                              className="h-10 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {activeTab === 'electronic' && (
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-3 border-b pb-4">
-                      <div className="rounded-lg bg-primary/20 p-2">
-                        <Zap className="h-5 w-5 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="0 text-lg font-semibold">Facturación Electrónica</h3>
-                        <p className="text-sm text-gray-600">Configuración para la emisión de comprobantes electrónicos</p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-6">
-                      <div className="space-y-4">
-                        <h4 className="flex items-center gap-4 font-semibold">
-                          <Shield className="h-4 w-4 text-primary" />
-                          Firma Electrónica
-                        </h4>
-                        <div className="space-y-4 rounded-lg border p-4">
-                          <FileUpload
-                            label="Archivo de Firma Electrónica (.p12)"
-                            accept="PNG, JPG, SVG (máx. 2MB)"
-                            onChange={(file) => updateConfig('electronic_signature_file', file)}
-                            currentFile={config.electronic_signature_file}
-                            hasError={!config.electronic_signature_file}
-                          />
-                          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                            <div className="space-y-2">
-                              <Label htmlFor="electronic_signature_password" className="text-sm font-medium text-gray-700">
-                                Contraseña de Firma
-                              </Label>
-                              <Input
-                                id="electronic_signature_password"
-                                type="password"
-                                value={config.electronic_signature_password}
-                                onChange={(e) => updateConfig('electronic_signature_password', e.target.value)}
-                                placeholder="••••••••"
-                                className="h-10 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                              />
-                            </div>
-                            <div className="space-y-2">
-                              <Label className="text-sm font-medium text-gray-700">Fecha de Expiración</Label>
-                              <DatePicker
-                                date={config.electronic_signature_expiry}
-                                onDateChange={(date) => updateConfig('electronic_signature_expiry', date)}
-                                placeholder="Fecha de expiración"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <Separator />
-
-                      <div className="space-y-4">
-                        <h4 className="flex items-center gap-4 font-semibold">
-                          <Globe className="h-4 w-4 text-primary" />
-                          Configuración SRI
-                        </h4>
-                        <div className="space-y-4 rounded-lg border p-4">
-                          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                            <div className="space-y-2">
-                              <Label className="text-sm font-medium">Ambiente SRI</Label>
-                              <Select value={config.sri_environment} onValueChange={(value: '1' | '2') => updateConfig('sri_environment', value)}>
-                                <SelectTrigger className="h-10 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="1">
-                                    <div className="flex items-center gap-2">
-                                      <div className="h-2 w-2 rounded-full bg-yellow-500"></div>
-                                      Ambiente de Pruebas
-                                    </div>
-                                  </SelectItem>
-                                  <SelectItem value="2">
-                                    <div className="flex items-center gap-2">
-                                      <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                                      Ambiente de Producción
-                                    </div>
-                                  </SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div className="space-y-2">
-                              <Label htmlFor="sri_token" className="text-sm font-medium text-gray-700">
-                                Token SRI
-                              </Label>
-                              <Input
-                                id="sri_token"
-                                value={config.sri_token}
-                                onChange={(e) => updateConfig('sri_token', e.target.value)}
-                                placeholder="Token de acceso SRI"
-                                className="h-10 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                              />
-                            </div>
-                          </div>
-                          <div className="space-y-2">
-                            <Label className="text-sm font-medium text-gray-700">Fecha de Expiración del Token</Label>
-                            <DatePicker
-                              date={config.sri_token_expiry}
-                              onDateChange={(date) => updateConfig('sri_token_expiry', date)}
-                              placeholder="Fecha de expiración del token"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {activeTab === 'general' && (
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-3 border-b border-gray-200 pb-4">
-                      <div className="rounded-lg bg-primary/20 p-2">
-                        <Settings className="h-5 w-5 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold">Configuración General</h3>
-                        <p className="text-sm text-gray-600">Preferencias del sistema y configuraciones adicionales</p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-6">
-                      <div className="space-y-4">
-                        <h4 className="font-semibold">Logo de la Empresa</h4>
-                        <div className="rounded-lg border p-4">
-                          <FileUpload
-                            label=""
-                            accept="PNG, JPG, SVG (máx. 2MB)"
-                            onChange={(file) => updateConfig('logo', file)}
-                            currentFile={config.logo}
-                          />
-                        </div>
-                      </div>
-
-                      <Separator />
-
-                      <div className="space-y-4">
-                        <h4 className="flex items-center gap-4 font-semibold">
-                          <CreditCard className="h-4 w-4 text-primary" />
-                          Moneda Principal
-                        </h4>
-                        <Select value={config.currency} onValueChange={(value) => updateConfig('currency', value)}>
-                          <SelectTrigger className="h-10 w-full border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="USD">
-                              <div className="flex items-center gap-2">USD - Dólar Estadounidense</div>
-                            </SelectItem>
-
-                            <SelectItem value="COP">
-                              <div className="flex items-center gap-2">COP - Peso Colombiano</div>
-                            </SelectItem>
-                            <SelectItem value="PEN">
-                              <div className="flex items-center gap-2">PEN - Sol Peruano</div>
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-4">
-                        <h4 className="flex items-center gap-4 font-semibold">
-                          <Globe className="h-4 w-4 text-primary" />
-                          Zona Horaria
-                        </h4>
-                        <Select value={config.timezone} onValueChange={(value) => updateConfig('timezone', value)}>
-                          <SelectTrigger className="h-10 w-full border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {timezone.map((tz) => (
-                              <SelectItem value={tz.tzCode} key={tz.tzCode}>
-                                <div className="flex items-center gap-2">{tz.label}</div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <Separator />
-
-                      <div className="space-y-4">
-                        <h4 className="flex items-center gap-2 font-semibold text-gray-900">
-                          <CheckCircle className="h-4 w-4 text-green-600" />
-                          Estado del Sistema
-                        </h4>
-                        <div className="flex items-center justify-between rounded-lg border border-blue-200 bg-blue-50 p-4">
-                          <div className="flex items-center space-x-3">
-                            <input
-                              type="checkbox"
-                              id="is_active"
-                              checked={config.is_active}
-                              onChange={(e) => updateConfig('is_active', e.target.checked)}
-                              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                            />
-                            <div>
-                              <Label htmlFor="is_active" className="text-sm font-medium text-gray-900">
-                                Empresa activa en el sistema
-                              </Label>
-                              <p className="text-xs text-gray-600">Desactivar temporalmente la empresa sin eliminar los datos</p>
-                            </div>
-                          </div>
-                          <StatusBadge status={config.is_active ? 'success' : 'error'}>{config.is_active ? 'Activa' : 'Inactiva'}</StatusBadge>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                <div className="h-80 border-t border-gray-200">
+                  <ConfigSummary />
+                </div>
               </div>
-            </ScrollArea>
-          </div>
-        </div>
+
+              {/* Área de contenido principal */}
+              <div className="flex-1 overflow-hidden">
+                <ScrollArea className="h-full">
+                  <div className="p-6">
+                    {/* Información Básica */}
+                    {activeTab === 'basic' && (
+                      <div className="space-y-6">
+                        <div className="flex items-center gap-3 border-b border-gray-200 pb-4">
+                          <div className="rounded-lg bg-blue-100 p-2">
+                            <Building2 className="h-5 w-5 text-blue-600" />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-semibold text-gray-900">Información Básica</h3>
+                            <p className="text-sm text-gray-600">Datos generales de identificación de la empresa</p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <FormField
+                              name={'ruc'}
+                              control={form.control}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>
+                                    RUC <span className="text-red-500">*</span>
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      {...field}
+                                      placeholder="1234567890001"
+                                      maxLength={13}
+                                      className="h-10 border-gray-200 font-mono focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              name={'name'}
+                              control={form.control}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>
+                                    Razón Social <span className="text-red-500">*</span>
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      {...field}
+                                      placeholder="1234567890001"
+                                      maxLength={13}
+                                      className="h-10 border-gray-200 font-mono focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+
+                          <FormField
+                            name={'commercial_name'}
+                            control={form.control}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Nombre Comercial</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    {...field}
+                                    placeholder="1234567890001"
+                                    maxLength={13}
+                                    className="h-10 border-gray-200 font-mono focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            name={'address'}
+                            control={form.control}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>
+                                  Dirección <span className="text-red-500">*</span>
+                                </FormLabel>
+                                <FormControl>
+                                  <Input
+                                    {...field}
+                                    placeholder="1234567890001"
+                                    maxLength={13}
+                                    className="h-10 border-gray-200 font-mono focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <FormField
+                              name={'phone'}
+                              control={form.control}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Teléfono</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      {...field}
+                                      ref={withMask('9999999')}
+                                      placeholder="1234567890001"
+                                      maxLength={13}
+                                      className="h-10 border-gray-200 font-mono focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              name={'phone'}
+                              control={form.control}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>
+                                    Celular <span className="text-red-500">*</span>
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      {...field}
+                                      ref={withMask('99-9999999')}
+                                      placeholder="1234567890001"
+                                      maxLength={13}
+                                      className="h-10 border-gray-200 font-mono focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <FormField
+                              name={'email'}
+                              control={form.control}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>
+                                    Email <span className="text-red-500">*</span>
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      {...field}
+                                      placeholder="1234567890001"
+                                      maxLength={13}
+                                      className="h-10 border-gray-200 font-mono focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              name={'website'}
+                              control={form.control}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Sitio Web</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      {...field}
+                                      placeholder="1234567890001"
+                                      maxLength={13}
+                                      className="h-10 border-gray-200 font-mono focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {activeTab === 'tributary' && (
+                      <div className="space-y-6">
+                        <div className="flex items-center gap-3 border-b border-gray-200 pb-4">
+                          <div className="rounded-lg bg-primary/20 p-2">
+                            <FileText className="h-5 w-5 text-primary" />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-semibold">Información Tributaria</h3>
+                            <p className="text-sm text-gray-600">Configuración tributaria y obligaciones fiscales</p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-6">
+                          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <div className="space-y-2">
+                              <Label className="text-sm font-medium text-gray-700"></Label>
+                            </div>
+
+                            <FormField
+                              name={'taxpayer_type'}
+                              control={form.control}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>
+                                    Tipo de Contribuyente <span className="text-red-500">*</span>
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Select {...field}>
+                                      <SelectTrigger className="h-10 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="natural">Persona Natural</SelectItem>
+                                        <SelectItem value="juridica">Persona Jurídica</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              name={'obligated_accounting'}
+                              control={form.control}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormControl>
+                                    <Switch checked={field.value} onCheckedChange={(checked) => field.onChange(checked)} />
+                                  </FormControl>
+                                  <FormLabel>Obligado a llevar contabilidad</FormLabel>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <div className="flex items-center space-x-3 pt-6">
+                              <Label htmlFor="obligated_accounting" className="text-sm font-medium text-gray-700"></Label>
+                            </div>
+                          </div>
+
+                          <Separator />
+
+                          <div className="space-y-4">
+                            <h4 className="flex items-center gap-4 font-semibold text-gray-900">
+                              <Shield className="h-4 w-4 text-primary" />
+                              Contribuyente Especial
+                            </h4>
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                              <div className="space-y-2">
+                                <Label htmlFor="special_taxpayer_number" className="text-sm font-medium text-gray-700">
+                                  Número de Resolución
+                                </Label>
+                                <Input
+                                  id="special_taxpayer_number"
+                                  value={config.special_taxpayer_number}
+                                  onChange={(e) => updateConfig('special_taxpayer_number', e.target.value)}
+                                  placeholder="NAC-DGERCGC12-00000001"
+                                  className="h-10 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label className="text-sm font-medium text-gray-700">Fecha de Resolución</Label>
+                                <DatePicker
+                                  date={config.special_taxpayer_date}
+                                  onDateChange={(date) => updateConfig('special_taxpayer_date', date)}
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          <Separator />
+
+                          <div className="space-y-4">
+                            <h4 className="flex items-center gap-4 font-semibold">
+                              <CreditCard className="h-4 w-4 text-primary" />
+                              Agente de Retención
+                            </h4>
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                              <div className="space-y-2">
+                                <Label htmlFor="retention_agent_resolution" className="text-sm font-medium text-gray-700">
+                                  Resolución de Agente de Retención
+                                </Label>
+                                <Input
+                                  id="retention_agent_resolution"
+                                  value={config.retention_agent_resolution}
+                                  onChange={(e) => updateConfig('retention_agent_resolution', e.target.value)}
+                                  placeholder="NAC-DGERCGC12-00000002"
+                                  className="h-10 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label className="text-sm font-medium text-gray-700">Fecha de Resolución</Label>
+                                <DatePicker date={config.retention_agent_date} onDateChange={(date) => updateConfig('retention_agent_date', date)} />
+                              </div>
+                            </div>
+                          </div>
+
+                          <Separator />
+
+                          <div className="space-y-4">
+                            <h4 className="flex items-center gap-4 font-semibold">
+                              <Settings className="h-4 w-4 text-primary" />
+                              Calificación Artesanal
+                            </h4>
+                            <div className="flex items-center space-x-3">
+                              <Switch
+                                id="is_artisan"
+                                checked={config.is_artisan}
+                                onCheckedChange={(checked) => updateConfig('is_artisan', checked)}
+                              />
+                              <Label htmlFor="is_artisan" className="text-sm font-medium text-gray-700">
+                                Es Artesano
+                              </Label>
+                            </div>
+                            {config.is_artisan && (
+                              <div className="space-y-2 rounded-md border p-4 pl-4">
+                                <Label htmlFor="artisan_number" className="text-sm font-medium text-gray-700">
+                                  Número de Calificación Artesanal
+                                </Label>
+                                <Input
+                                  id="artisan_number"
+                                  value={config.artisan_number}
+                                  onChange={(e) => updateConfig('artisan_number', e.target.value)}
+                                  placeholder="JNDA-2023-001"
+                                  className="h-10 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {activeTab === 'electronic' && (
+                      <div className="space-y-6">
+                        <div className="flex items-center gap-3 border-b pb-4">
+                          <div className="rounded-lg bg-primary/20 p-2">
+                            <Zap className="h-5 w-5 text-primary" />
+                          </div>
+                          <div>
+                            <h3 className="0 text-lg font-semibold">Facturación Electrónica</h3>
+                            <p className="text-sm text-gray-600">Configuración para la emisión de comprobantes electrónicos</p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-6">
+                          <div className="space-y-4">
+                            <h4 className="flex items-center gap-4 font-semibold">
+                              <Shield className="h-4 w-4 text-primary" />
+                              Firma Electrónica
+                            </h4>
+                            <div className="space-y-4 rounded-lg border p-4">
+                              <FileUpload
+                                label="Archivo de Firma Electrónica (.p12)"
+                                accept="PNG, JPG, SVG (máx. 2MB)"
+                                onChange={(file) => updateConfig('electronic_signature_file', file)}
+                                currentFile={config.electronic_signature_file}
+                                hasError={!config.electronic_signature_file}
+                              />
+                              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                <div className="space-y-2">
+                                  <Label htmlFor="electronic_signature_password" className="text-sm font-medium text-gray-700">
+                                    Contraseña de Firma
+                                  </Label>
+                                  <Input
+                                    id="electronic_signature_password"
+                                    type="password"
+                                    value={config.electronic_signature_password}
+                                    onChange={(e) => updateConfig('electronic_signature_password', e.target.value)}
+                                    placeholder="••••••••"
+                                    className="h-10 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-medium text-gray-700">Fecha de Expiración</Label>
+                                  <DatePicker
+                                    date={config.electronic_signature_expiry}
+                                    onDateChange={(date) => updateConfig('electronic_signature_expiry', date)}
+                                    placeholder="Fecha de expiración"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <Separator />
+
+                          <div className="space-y-4">
+                            <h4 className="flex items-center gap-4 font-semibold">
+                              <Globe className="h-4 w-4 text-primary" />
+                              Configuración SRI
+                            </h4>
+                            <div className="space-y-4 rounded-lg border p-4">
+                              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                <div className="space-y-2">
+                                  <Label className="text-sm font-medium">Ambiente SRI</Label>
+                                  <Select value={config.sri_environment} onValueChange={(value: '1' | '2') => updateConfig('sri_environment', value)}>
+                                    <SelectTrigger className="h-10 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="1">
+                                        <div className="flex items-center gap-2">
+                                          <div className="h-2 w-2 rounded-full bg-yellow-500"></div>
+                                          Ambiente de Pruebas
+                                        </div>
+                                      </SelectItem>
+                                      <SelectItem value="2">
+                                        <div className="flex items-center gap-2">
+                                          <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                                          Ambiente de Producción
+                                        </div>
+                                      </SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div className="space-y-2">
+                                  <Label htmlFor="sri_token" className="text-sm font-medium text-gray-700">
+                                    Token SRI
+                                  </Label>
+                                  <Input
+                                    id="sri_token"
+                                    value={config.sri_token}
+                                    onChange={(e) => updateConfig('sri_token', e.target.value)}
+                                    placeholder="Token de acceso SRI"
+                                    className="h-10 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                  />
+                                </div>
+                              </div>
+                              <div className="space-y-2">
+                                <Label className="text-sm font-medium text-gray-700">Fecha de Expiración del Token</Label>
+                                <DatePicker
+                                  date={config.sri_token_expiry}
+                                  onDateChange={(date) => updateConfig('sri_token_expiry', date)}
+                                  placeholder="Fecha de expiración del token"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {activeTab === 'general' && (
+                      <div className="space-y-6">
+                        <div className="flex items-center gap-3 border-b border-gray-200 pb-4">
+                          <div className="rounded-lg bg-primary/20 p-2">
+                            <Settings className="h-5 w-5 text-primary" />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-semibold">Configuración General</h3>
+                            <p className="text-sm text-gray-600">Preferencias del sistema y configuraciones adicionales</p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-6">
+                          <div className="space-y-4">
+                            <h4 className="font-semibold">Logo de la Empresa</h4>
+                            <div className="rounded-lg border p-4">
+                              <FileUpload
+                                label=""
+                                accept="PNG, JPG, SVG (máx. 2MB)"
+                                onChange={(file) => updateConfig('logo', file)}
+                                currentFile={config.logo}
+                              />
+                            </div>
+                          </div>
+
+                          <Separator />
+
+                          <div className="space-y-4">
+                            <h4 className="flex items-center gap-4 font-semibold">
+                              <CreditCard className="h-4 w-4 text-primary" />
+                              Moneda Principal
+                            </h4>
+                            <Select value={config.currency} onValueChange={(value) => updateConfig('currency', value)}>
+                              <SelectTrigger className="h-10 w-full border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="USD">
+                                  <div className="flex items-center gap-2">USD - Dólar Estadounidense</div>
+                                </SelectItem>
+
+                                <SelectItem value="COP">
+                                  <div className="flex items-center gap-2">COP - Peso Colombiano</div>
+                                </SelectItem>
+                                <SelectItem value="PEN">
+                                  <div className="flex items-center gap-2">PEN - Sol Peruano</div>
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <div className="space-y-4">
+                            <h4 className="flex items-center gap-4 font-semibold">
+                              <Globe className="h-4 w-4 text-primary" />
+                              Zona Horaria
+                            </h4>
+                            <Select value={config.timezone} onValueChange={(value) => updateConfig('timezone', value)}>
+                              <SelectTrigger className="h-10 w-full border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {timezone.map((tz) => (
+                                  <SelectItem value={tz.tzCode} key={tz.tzCode}>
+                                    <div className="flex items-center gap-2">{tz.label}</div>
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          <Separator />
+
+                          <div className="space-y-4">
+                            <h4 className="flex items-center gap-2 font-semibold text-gray-900">
+                              <CheckCircle className="h-4 w-4 text-green-600" />
+                              Estado del Sistema
+                            </h4>
+                            <div className="flex items-center justify-between rounded-lg border border-blue-200 bg-blue-50 p-4">
+                              <div className="flex items-center space-x-3">
+                                <input
+                                  type="checkbox"
+                                  id="is_active"
+                                  checked={config.is_active}
+                                  onChange={(e) => updateConfig('is_active', e.target.checked)}
+                                  className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                />
+                                <div>
+                                  <Label htmlFor="is_active" className="text-sm font-medium text-gray-900">
+                                    Empresa activa en el sistema
+                                  </Label>
+                                  <p className="text-xs text-gray-600">Desactivar temporalmente la empresa sin eliminar los datos</p>
+                                </div>
+                              </div>
+                              <StatusBadge status={config.is_active ? 'success' : 'error'}>{config.is_active ? 'Activa' : 'Inactiva'}</StatusBadge>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </ScrollArea>
+              </div>
+            </div>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
