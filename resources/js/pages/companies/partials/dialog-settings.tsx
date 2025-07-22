@@ -53,8 +53,8 @@ const businessConfigSchema = z.object({
   address: z.string().min(1, 'Dirección es requerida'),
   phone: z.string().optional(),
   mobile: z.string().optional(),
-  email: z.string().email('Email inválido'),
-  website: z.string().url('URL inválida').optional().or(z.literal('')),
+  email: z.string(),
+  website: z.string(),
   taxpayer_type: z.enum(['natural', 'juridica']),
   obligated_accounting: z.boolean(),
   special_taxpayer_number: z.string().optional(),
@@ -140,6 +140,8 @@ export default function BusinessConfigModal() {
       is_active: true,
     },
   });
+
+  const isArtisan: boolean = form.watch('is_artisan');
 
   const tabs: Tab[] = [
     {
@@ -658,25 +660,38 @@ export default function BusinessConfigModal() {
                               Contribuyente Especial
                             </h4>
                             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                              <div className="space-y-2">
-                                <Label htmlFor="special_taxpayer_number" className="text-sm font-medium text-gray-700">
-                                  Número de Resolución
-                                </Label>
-                                <Input
-                                  id="special_taxpayer_number"
-                                  value={config.special_taxpayer_number}
-                                  onChange={(e) => updateConfig('special_taxpayer_number', e.target.value)}
-                                  placeholder="NAC-DGERCGC12-00000001"
-                                  className="h-10 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                                />
-                              </div>
-                              <div className="space-y-2">
-                                <Label className="text-sm font-medium text-gray-700">Fecha de Resolución</Label>
-                                <DatePicker
-                                  date={config.special_taxpayer_date}
-                                  onDateChange={(date) => updateConfig('special_taxpayer_date', date)}
-                                />
-                              </div>
+                              <FormField
+                                name={'special_taxpayer_number'}
+                                control={form.control}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Número de Resolución</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        {...field}
+                                        placeholder="NAC-DGERCGC12-00000001"
+                                        maxLength={13}
+                                        className="h-10 border-gray-200 font-mono focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+
+                              <FormField
+                                name={'special_taxpayer_date'}
+                                control={form.control}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Fecha de Resolución</FormLabel>
+                                    <FormControl>
+                                      <DatePicker date={field.value} onDateChange={(date) => field.onChange(date)} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
                             </div>
                           </div>
 
@@ -688,22 +703,38 @@ export default function BusinessConfigModal() {
                               Agente de Retención
                             </h4>
                             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                              <div className="space-y-2">
-                                <Label htmlFor="retention_agent_resolution" className="text-sm font-medium text-gray-700">
-                                  Resolución de Agente de Retención
-                                </Label>
-                                <Input
-                                  id="retention_agent_resolution"
-                                  value={config.retention_agent_resolution}
-                                  onChange={(e) => updateConfig('retention_agent_resolution', e.target.value)}
-                                  placeholder="NAC-DGERCGC12-00000002"
-                                  className="h-10 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                                />
-                              </div>
-                              <div className="space-y-2">
-                                <Label className="text-sm font-medium text-gray-700">Fecha de Resolución</Label>
-                                <DatePicker date={config.retention_agent_date} onDateChange={(date) => updateConfig('retention_agent_date', date)} />
-                              </div>
+                              <FormField
+                                name={'retention_agent_resolution'}
+                                control={form.control}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Resolución de Agente de Retención</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        {...field}
+                                        placeholder="NAC-DGERCGC12-00000001"
+                                        maxLength={13}
+                                        className="h-10 border-gray-200 font-mono focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+
+                              <FormField
+                                name={'retention_agent_date'}
+                                control={form.control}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Fecha de Resolución</FormLabel>
+                                    <FormControl>
+                                      <DatePicker date={field.value} onDateChange={(date) => field.onChange(date)} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
                             </div>
                           </div>
 
@@ -714,27 +745,40 @@ export default function BusinessConfigModal() {
                               <Settings className="h-4 w-4 text-primary" />
                               Calificación Artesanal
                             </h4>
-                            <div className="flex items-center space-x-3">
-                              <Switch
-                                id="is_artisan"
-                                checked={config.is_artisan}
-                                onCheckedChange={(checked) => updateConfig('is_artisan', checked)}
-                              />
-                              <Label htmlFor="is_artisan" className="text-sm font-medium text-gray-700">
-                                Es Artesano
-                              </Label>
-                            </div>
-                            {config.is_artisan && (
+
+                            <FormField
+                              name={'is_artisan'}
+                              control={form.control}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormControl>
+                                    <Switch checked={field.value} onCheckedChange={(checked) => field.onChange(checked)} />
+                                  </FormControl>
+                                  <FormLabel>Es Artesano</FormLabel>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            {isArtisan && (
                               <div className="space-y-2 rounded-md border p-4 pl-4">
-                                <Label htmlFor="artisan_number" className="text-sm font-medium text-gray-700">
-                                  Número de Calificación Artesanal
-                                </Label>
-                                <Input
-                                  id="artisan_number"
-                                  value={config.artisan_number}
-                                  onChange={(e) => updateConfig('artisan_number', e.target.value)}
-                                  placeholder="JNDA-2023-001"
-                                  className="h-10 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                <FormField
+                                  name={'artisan_number'}
+                                  control={form.control}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Número de Calificación Artesanal</FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          {...field}
+                                          placeholder="JNDA-2023-001"
+                                          maxLength={13}
+                                          className="h-10 border-gray-200 font-mono focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
                                 />
                               </div>
                             )}
