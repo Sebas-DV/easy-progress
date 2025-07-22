@@ -75,7 +75,7 @@ export function BusinessConfigModal() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Button onClick={() => form.handleSubmit(onSubmit)()} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700">
+            <Button onClick={() => form.handleSubmit(onSubmit)()} className="flex items-center gap-2 bg-primary hover:bg-blue-700">
               <Save className="h-4 w-4" />
               Guardar
             </Button>

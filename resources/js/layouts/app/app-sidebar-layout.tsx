@@ -5,8 +5,6 @@ import { AppSidebarHeader } from '@/components/app-sidebar-header';
 import { Toaster } from '@/components/ui/sonner';
 import CreateTeam from '@/pages/teams/create';
 
-import CompanyDialogSettings from '@/pages/companies/partials/dialog-settings';
-
 import { type BreadcrumbItem } from '@/types';
 import { type PropsWithChildren } from 'react';
 
@@ -19,7 +17,6 @@ export default function AppSidebarLayout({ children, breadcrumbs = [] }: PropsWi
         {children}
 
         <CreateTeam />
-        <CompanyDialogSettings />
       </AppContent>
 
       <Toaster richColors={true} />

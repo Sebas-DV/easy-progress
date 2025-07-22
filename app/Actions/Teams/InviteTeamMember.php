@@ -51,9 +51,9 @@ class InviteTeamMember implements InvitesTeamMembers
         Validator::make(
             compact('email', 'role'),
             $this->rules($team),
-            ['email.unique' => __('This user has already been invited to the team.')]
+            ['email.unique' => __('This user has already been invited to the team.')],
         )->after(
-            $this->ensureUserIsNotAlreadyOnTeam($team, $email)
+            $this->ensureUserIsNotAlreadyOnTeam($team, $email),
         )->validate();
     }
 
@@ -79,8 +79,10 @@ class InviteTeamMember implements InvitesTeamMembers
      */
     protected function ensureUserIsNotAlreadyOnTeam(object $team, string $email): Closure
     {
-        return static function ($validator) use ($team, $email): void {
-            if ($team->hasUserWithEmail($email)) {
+        return static function ($validator) use ($team, $email): void
+        {
+            if ($team->hasUserWithEmail($email))
+            {
                 $validator->errors()->add('email', __('This user already belongs to the team.'));
             }
         };

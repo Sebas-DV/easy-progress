@@ -11,7 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tax_rates', function (Blueprint $table) {
+        Schema::create('tax_rates', function (Blueprint $table)
+        {
             $table->uuid('id')->primary();
             $table->string('code');
             $table->string('name');

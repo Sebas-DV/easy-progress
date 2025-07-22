@@ -37,7 +37,8 @@ class HandleInertiaRequests extends Middleware
     {
         $user = $request->user();
 
-        if ($user) {
+        if ($user)
+        {
             $user->makeHidden('owned_teams');
         }
 
@@ -49,7 +50,7 @@ class HandleInertiaRequests extends Middleware
                 'teams' => $user ? $user->allTeams()->values() : [],
                 'current_team' => $user ? $user->currentTeam : null,
             ],
-            'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'sidebarOpen' => !$request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }
 }

@@ -11,7 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('document_sequences', function (Blueprint $table) {
+        Schema::create('document_sequences', function (Blueprint $table)
+        {
             $table->uuid('id')->primary();
             $table->foreignUuid('emission_point_id')->constrained('emission_points')->cascadeOnDelete();
             $table->enum('document_type', [

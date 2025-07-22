@@ -11,7 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('accounts', function (Blueprint $table) {
+        Schema::create('accounts', function (Blueprint $table)
+        {
             $table->uuid('id')->primary();
             $table->foreignUuid('company_id')->constrained()->restrictOnDelete();
             $table->foreignUuid('account_type_id')->constrained()->restrictOnDelete();

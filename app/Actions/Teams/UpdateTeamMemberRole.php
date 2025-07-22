@@ -41,7 +41,8 @@ class UpdateTeamMemberRole
      */
     protected function ensureMemberIsNotTeamOwner(int $teamMemberId, mixed $team): void
     {
-        if ($teamMemberId === $team->owner->id) {
+        if ($teamMemberId === $team->owner->id)
+        {
             throw ValidationException::withMessages([
                 'team' => [__('You may not remove the team owner.')],
             ])->errorBag('removeTeamMember');

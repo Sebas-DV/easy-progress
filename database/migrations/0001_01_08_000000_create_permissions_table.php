@@ -11,7 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('permissions', static function (Blueprint $table) {
+        Schema::create('permissions', static function (Blueprint $table)
+        {
             $table->id();
             $table->foreignUuid(config('teams.foreign_keys.team_id', 'team_id'))->constrained()->cascadeOnDelete();
             $table->foreignId('ability_id')->constrained()->cascadeOnDelete();

@@ -10,8 +10,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { useCompanyStore } from '@/stores/company-store';
 import { type BreadcrumbItem as BreadcrumbItemType } from '@/types';
+import { Link } from '@inertiajs/react';
 import { Bell, Building2, Calendar, ChevronDown, Edit, File, Folder, Grid3x3, Home, Plus, Search, Settings, Share, User } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
@@ -75,7 +75,7 @@ const mockCompanies: Company[] = [
   },
 ];
 
-export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: BreadcrumbItemType[] }) {
+export function AppSidebarHeader() {
   const [isCommandOpen, setIsCommandOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredItems, setFilteredItems] = useState(commandItems);
@@ -85,8 +85,6 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
   const [currentCompany, setCurrentCompany] = useState<Company | null>(null);
   const [isCompanyDropdownOpen, setIsCompanyDropdownOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-
-  const { isOpen, setIsOpen } = useCompanyStore();
 
   useEffect(() => {
     setNotificationCount(10);
@@ -174,18 +172,8 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
   };
 
   const handleEditCompany = () => {
-    setIsOpen(true);
-
     setIsCompanyDropdownOpen(false);
     console.log(`Editing company: ${currentCompany?.name}`);
-  };
-
-  const handleCreateCompany = () => {
-    setIsOpen(true);
-
-    setIsCompanyDropdownOpen(false);
-    console.log('Creating new company');
-    window.location.href = '/companies/create';
   };
 
   const groupedItems = filteredItems.reduce(
@@ -211,7 +199,7 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
 
     if (companies.length === 0) {
       return (
-        <Button variant="ghost" onClick={handleCreateCompany} className="h-auto p-0 font-normal text-foreground hover:bg-transparent focus:ring-0">
+        <Button variant="ghost" className="h-auto p-0 font-normal text-foreground hover:bg-transparent focus:ring-0">
           <div className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
             <span className="text-muted-foreground">Crear Compañía</span>
@@ -260,9 +248,11 @@ export function AppSidebarHeader({ breadcrumbs = [] }: { breadcrumbs?: Breadcrum
             <span>Editar Compañía Actual</span>
           </DropdownMenuItem>
 
-          <DropdownMenuItem onClick={handleCreateCompany} className="flex cursor-pointer items-center gap-2">
-            <Plus className="h-4 w-4" />
-            <span>Crear Nueva Compañía</span>
+          <DropdownMenuItem className="flex cursor-pointer items-center gap-2" asChild={true}>
+            <Link href={route('company.create')}>
+              <Plus className="h-4 w-4" />
+              <span>Crear Nueva Compañía</span>
+            </Link>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

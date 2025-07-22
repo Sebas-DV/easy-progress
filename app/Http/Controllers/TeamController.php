@@ -13,7 +13,8 @@ class TeamController extends Controller
 {
     public function add(TeamCreateRequest $request)
     {
-        try {
+        try
+        {
             DB::transaction(function () use ($request)
             {
                 $team = Team::create([
@@ -28,12 +29,16 @@ class TeamController extends Controller
             });
 
             return response()->redirectTo('dashboard')->with('success', 'Team created successfully.');
-        } catch (Throwable $t) {
-            Log::error('Team creation failed.'.$t->getMessage());
+        }
+        catch (Throwable $t)
+        {
+            Log::error('Team creation failed.' . $t->getMessage());
 
             return response()->redirectTo('dashboard')->with('error', 'Team creation failed.');
         }
     }
 
-    public function switch() {}
+    public function switch()
+    {
+    }
 }

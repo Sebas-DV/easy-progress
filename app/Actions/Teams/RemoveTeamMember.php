@@ -41,7 +41,8 @@ class RemoveTeamMember implements RemovesTeamMembers
      */
     protected function authorize(mixed $user, mixed $team, object $teamMember): void
     {
-        if ($user->id !== $teamMember->id && ! Gate::forUser($user)->check('removeTeamMember', $team)) {
+        if ($user->id !== $teamMember->id && !Gate::forUser($user)->check('removeTeamMember', $team))
+        {
             throw new AuthorizationException;
         }
     }
@@ -56,7 +57,8 @@ class RemoveTeamMember implements RemovesTeamMembers
      */
     protected function ensureMemberIsNotTeamOwner(object $teamMember, object $team): void
     {
-        if ($teamMember->id === $team->owner->id) {
+        if ($teamMember->id === $team->owner->id)
+        {
             throw ValidationException::withMessages([
                 'team' => [__('You may not remove the team owner.')],
             ])->errorBag('removeTeamMember');

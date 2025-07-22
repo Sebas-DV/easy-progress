@@ -11,14 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('company_users', function (Blueprint $table) {
+        Schema::create('company_users', function (Blueprint $table)
+        {
             $table->uuid('id')->primary();
             $table->foreignUuid('company_id')->constrained('companies')->onDelete('cascade');
             $table->foreignUuid('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('role_id')->nullable()->constrained('roles')->onDelete('SET NULL');
             $table->boolean('is_active')->default(false);
             $table->boolean('is_default')->default(false);
+            $table->boolean('is_owner')->default(false);
             $table->dateTime('last_accessed_at')->nullable();
+            $table->dateTime('invited_at')->nullable();
+            $table->dateTime('joined_at')->nullable();
             $table->json('permissions')->nullable();
 
             $table->timestamps();
@@ -27,6 +30,7 @@ return new class extends Migration
             $table->index('user_id');
             $table->index(['user_id', 'is_active']);
             $table->index(['user_id', 'is_default']);
+            $table->index(['company_id', 'is_owner']);
         });
     }
 

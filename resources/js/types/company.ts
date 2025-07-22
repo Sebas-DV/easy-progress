@@ -1,4 +1,4 @@
-export interface Company {
+export interface CreateCompanyRequest {
   ruc: string;
   name: string;
   commercial_name: string;

@@ -11,7 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('accounting_periods', function (Blueprint $table) {
+        Schema::create('accounting_periods', function (Blueprint $table)
+        {
             $table->uuid('id')->primary();
             $table->foreignUuid('fiscal_year_id')->constrained()->cascadeOnDelete();
             $table->string('name');

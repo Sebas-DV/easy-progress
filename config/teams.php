@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Middleware Configuration
@@ -9,7 +8,6 @@ return [
     | Customize middleware behavior and handling of unauthorized requests.
     */
     'middleware' => [
-
         // Whether to automatically register team middleware in the service provider.
         'register' => true,
 

@@ -11,7 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('fiscal_years', function (Blueprint $table) {
+        Schema::create('fiscal_years', function (Blueprint $table)
+        {
             $table->uuid('id')->primary();
             $table->foreignUuid('company_id')->constrained()->restrictOnDelete();
             $table->year('year');

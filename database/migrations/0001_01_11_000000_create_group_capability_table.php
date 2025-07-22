@@ -11,7 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('group_capability', static function (Blueprint $table) {
+        Schema::create('group_capability', static function (Blueprint $table)
+        {
             $table->id();
             $table->foreignId('role_id')->constrained()->cascadeOnDelete();
             $table->foreignId('capability_id')->constrained()->cascadeOnDelete();

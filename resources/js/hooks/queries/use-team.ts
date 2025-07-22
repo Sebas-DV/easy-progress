@@ -1,6 +1,6 @@
 import { TeamService } from '@/services/team-service';
 import { CreateTeamRequest, SwitchTeamRequest, UpdateTeamRequest } from '@/types/team';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 export const useSwitchTeam = () => {
@@ -16,13 +16,10 @@ export const useSwitchTeam = () => {
 };
 
 export const useCreateTeam = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (request: CreateTeamRequest) => TeamService.createTeam(request),
 
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['teams'] });
       toast.success('Team created successfully.');
     },
     onError: (error: Error) => {

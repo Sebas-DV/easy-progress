@@ -55,9 +55,9 @@ class AddTeamMember implements AddsTeamMembers
             $this->rules($team),
             [
                 'email.exists' => __('We were unable to find a registered user with this email address.'),
-            ]
+            ],
         )->after(
-            $this->ensureUserIsNotAlreadyOnTeam($team, $email)
+            $this->ensureUserIsNotAlreadyOnTeam($team, $email),
         )->validate();
     }
 
@@ -77,8 +77,10 @@ class AddTeamMember implements AddsTeamMembers
      */
     protected function ensureUserIsNotAlreadyOnTeam(mixed $team, string $email): Closure
     {
-        return static function ($validator) use ($team, $email): void {
-            if ($team->hasUserWithEmail($email)) {
+        return static function ($validator) use ($team, $email): void
+        {
+            if ($team->hasUserWithEmail($email))
+            {
                 $validator->errors()->add('email', __('This user already belongs to the team.'));
             }
         };
