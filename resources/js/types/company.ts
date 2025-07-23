@@ -30,3 +30,16 @@ export interface CreateCompanyRequest {
   is_active: boolean;
   settings: Record<string, string>;
 }
+
+export interface UserCompanyResponse {
+  success: boolean;
+  data: {
+    id: string;
+    ruc: string;
+    name: string;
+    is_current: boolean;
+    is_active: boolean;
+    is_default: boolean;
+  }[];
+  current_company_id: string | null;
+}

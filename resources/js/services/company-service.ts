@@ -1,4 +1,4 @@
-import { CreateCompanyRequest } from '@/types/company';
+import { CreateCompanyRequest, UserCompanyResponse } from '@/types/company';
 import axios from 'axios';
 
 export class CompanyService {
@@ -18,5 +18,17 @@ export class CompanyService {
           }
         });
     });
+  }
+
+  static async getUserCompanies(): Promise<UserCompanyResponse> {
+    try {
+      const response = await axios.get(route('companies.list'));
+      return response.data as UserCompanyResponse;
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response && error.response.data) {
+        throw new Error(error.response.data.message || 'Error al obtener las empresas del usuario.');
+      }
+      throw new Error('Ocurrió un error inesperado al obtener las empresas del usuario.');
+    }
   }
 }

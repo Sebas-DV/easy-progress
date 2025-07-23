@@ -37,18 +37,43 @@ class HandleInertiaRequests extends Middleware
     {
         $user = $request->user();
 
-        if ($user)
+        if (!$user)
         {
-            $user->makeHidden('owned_teams');
+            return [
+                'name' => config('app.name'),
+                'sidebarOpen' => !$request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            ];
         }
+
+        $user->makeHidden(['owned_teams', 'created_at', 'updated_at']);
+        $teams = $user->allTeams()->each(fn ($team) => $team->makeHidden(['created_at', 'updated_at']))->values();
+        $currentTeam = $user->currentTeam?->makeHidden(['created_at', 'updated_at']);
+
+        $companies = $user->activeCompanies()
+            ->select(['companies.id', 'companies.ruc', 'companies.name'])
+            ->get()
+            ->map(function ($company) use ($user)
+            {
+                return [
+                    'id' => $company->id,
+                    'ruc' => $company->ruc,
+                    'name' => $company->name,
+                    'is_current' => $user->current_company_id === $company->id,
+                    'is_owner' => $user->isOwnerOf($company),
+                    'is_default' => $user->defaultCompany()?->id === $company->id,
+                ];
+            });
+        $currentCompany = $user->currentCompany?->only(['id', 'ruc', 'name']);
 
         return [
             ...parent::share($request),
             'name' => config('app.name'),
             'auth' => [
                 'user' => $user,
-                'teams' => $user ? $user->allTeams()->values() : [],
-                'current_team' => $user ? $user->currentTeam : null,
+                'teams' => $teams,
+                'current_team' => $currentTeam,
+                'companies' => $companies,
+                'current_company' => $currentCompany,
             ],
             'sidebarOpen' => !$request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

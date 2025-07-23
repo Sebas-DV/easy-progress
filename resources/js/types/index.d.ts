@@ -6,6 +6,8 @@ export interface Auth {
   user: User;
   teams: Team[] | null;
   current_team: Team | null;
+  companies: Company[] | null;
+  current_company: Company | null;
 }
 
 export interface BreadcrumbItem {
@@ -46,4 +48,13 @@ export interface Team {
   name: string;
   user_id: string;
   id: string;
+}
+
+export interface Company {
+  id: string;
+  ruc: string;
+  name: string;
+  is_current: boolean;
+  is_active: boolean;
+  is_default: boolean;
 }

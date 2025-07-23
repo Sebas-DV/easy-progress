@@ -86,6 +86,42 @@ class CompanyController extends Controller
         }
     }
 
+    public function list(): JsonResponse
+    {
+        try
+        {
+            $user = auth()->user();
+
+            $companies = $user->activeCompanies()
+                ->select('companies.id', 'companies.ruc', 'companies.name')
+                ->get()
+                ->map(function ($company) use ($user)
+                {
+                    return [
+                        'id' => $company->id,
+                        'ruc' => $company->ruc,
+                        'name' => $company->name,
+                        'is_current' => $user->current_company_id === $company->id,
+                        'is_owner' => $user->isOwnerOf($company),
+                        'is_default' => $user->defaultCompany()?->id === $company->id,
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'data' => $companies,
+                'current_company_id' => $user->current_company_id,
+            ]);
+        }
+        catch (Exception $e)
+        {
+            return response()->json([
+                'message' => 'Failed to retrieve companies: ' . $e->getMessage(),
+                'success' => false,
+            ], 500);
+        }
+    }
+
     public function update(CompanyUpdateRequest $request): JsonResponse
     {
     }

@@ -42,6 +42,7 @@ Route::middleware(['auth', 'verified'])->group(function (): void
 
         Route::group(['prefix' => 'companies'], function ()
         {
+            Route::get('list', [CompanyController::class, 'list'])->name('companies.list');
             Route::post('create', [CompanyController::class, 'store'])->name('companies.create');
             Route::post('update', [CompanyController::class, 'update'])->name('companies.update');
         });

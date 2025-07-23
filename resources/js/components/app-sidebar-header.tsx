@@ -1,18 +1,10 @@
 import { Breadcrumbs } from '@/components/breadcrumbs';
+import { CompanySwitcher } from '@/components/company-switcher';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import { type BreadcrumbItem as BreadcrumbItemType } from '@/types';
-import { Link } from '@inertiajs/react';
-import { Bell, Building2, Calendar, ChevronDown, Edit, File, Folder, Grid3x3, Home, Plus, Search, Settings, Share, User } from 'lucide-react';
+import { Bell, Calendar, File, Folder, Grid3x3, Home, Search, Settings, Share, User } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
 interface CommandItem {
@@ -24,17 +16,7 @@ interface CommandItem {
   action?: () => void;
 }
 
-interface Company {
-  id: string;
-  name: string;
-  ruc: string;
-  logo?: string;
-  is_active: boolean;
-  is_default: boolean;
-}
-
 const commandItems: CommandItem[] = [
-  // Navigation
   { id: 'home', label: 'Go to Home', icon: Home, shortcut: 'H', category: 'Navigation' },
   { id: 'dashboard', label: 'Go to Dashboard', icon: Grid3x3, shortcut: 'D', category: 'Navigation' },
   { id: 'calendar', label: 'Open Calendar', icon: Calendar, shortcut: 'C', category: 'Navigation' },
@@ -51,65 +33,14 @@ const commandItems: CommandItem[] = [
   { id: 'profile', label: 'Edit Profile', icon: User, shortcut: 'P', category: 'Settings' },
 ];
 
-const mockCompanies: Company[] = [
-  {
-    id: '1',
-    name: 'Empresa Principal S.A.',
-    ruc: '1792148549001',
-    is_active: true,
-    is_default: true,
-  },
-  {
-    id: '2',
-    name: 'Sucursal Norte Cia. Ltda.',
-    ruc: '1792148549002',
-    is_active: true,
-    is_default: false,
-  },
-  {
-    id: '3',
-    name: 'Comercial del Sur S.A.',
-    ruc: '1792148549003',
-    is_active: true,
-    is_default: false,
-  },
-];
-
 export function AppSidebarHeader() {
   const [isCommandOpen, setIsCommandOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredItems, setFilteredItems] = useState(commandItems);
   const [notificationCount, setNotificationCount] = useState(3);
 
-  const [companies, setCompanies] = useState<Company[]>([]);
-  const [currentCompany, setCurrentCompany] = useState<Company | null>(null);
-  const [isCompanyDropdownOpen, setIsCompanyDropdownOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
   useEffect(() => {
     setNotificationCount(10);
-
-    const loadCompanies = async () => {
-      try {
-        setIsLoading(true);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        const companies = mockCompanies;
-
-        setCompanies(companies);
-
-        const defaultCompany = companies.find((c) => c.is_default) || companies[0] || null;
-        setCurrentCompany(defaultCompany);
-      } catch (error) {
-        console.error('Error loading companies:', error);
-        setCompanies([]);
-        setCurrentCompany(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadCompanies().then((r) => r);
   }, []);
 
   useEffect(() => {
@@ -149,33 +80,6 @@ export function AppSidebarHeader() {
     }
   };
 
-  const handleCompanySwitch = async (companyId: string) => {
-    try {
-      setIsCompanyDropdownOpen(false);
-
-      const selectedCompany = companies.find((c) => c.id === companyId);
-      if (!selectedCompany) return;
-
-      setCurrentCompany(selectedCompany);
-
-      setCompanies((prev) =>
-        prev.map((c) => ({
-          ...c,
-          is_default: c.id === companyId,
-        })),
-      );
-
-      console.log(`Switching to company: ${selectedCompany.name}`);
-    } catch (error) {
-      console.error('Error switching company:', error);
-    }
-  };
-
-  const handleEditCompany = () => {
-    setIsCompanyDropdownOpen(false);
-    console.log(`Editing company: ${currentCompany?.name}`);
-  };
-
   const groupedItems = filteredItems.reduce(
     (acc, item) => {
       if (!acc[item.category]) {
@@ -187,81 +91,9 @@ export function AppSidebarHeader() {
     {} as Record<string, CommandItem[]>,
   );
 
-  const renderCompanySelector = () => {
-    if (isLoading) {
-      return (
-        <div className="flex items-center gap-2 px-2 py-1">
-          <Building2 className="h-4 w-4 animate-pulse" />
-          <div className="h-4 w-32 animate-pulse rounded bg-muted"></div>
-        </div>
-      );
-    }
-
-    if (companies.length === 0) {
-      return (
-        <Button variant="ghost" className="h-auto p-0 font-normal text-foreground hover:bg-transparent focus:ring-0">
-          <div className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            <span className="text-muted-foreground">Crear Compañía</span>
-          </div>
-        </Button>
-      );
-    }
-
-    return (
-      <DropdownMenu open={isCompanyDropdownOpen} onOpenChange={setIsCompanyDropdownOpen}>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="ml-4 h-auto p-0 font-normal text-foreground hover:bg-transparent focus:ring-0">
-            <div className="flex items-center gap-2">
-              <Building2 className="h-4 w-4" />
-              <span className="max-w-[200px] truncate">{currentCompany?.name || 'Seleccionar Compañía'}</span>
-              <ChevronDown className="h-3 w-3 opacity-50" />
-            </div>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-80">
-          <DropdownMenuLabel className="text-xs text-muted-foreground">Cambiar Compañía</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-
-          {companies.map((company) => (
-            <DropdownMenuItem key={company.id} onClick={() => handleCompanySwitch(company.id)} className="flex cursor-pointer items-center gap-3 p-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
-                <Building2 className="h-4 w-4 text-primary" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="truncate font-medium">{company.name}</span>
-                  {company.is_default && (
-                    <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800">Actual</span>
-                  )}
-                </div>
-                <div className="text-xs text-muted-foreground">RUC: {company.ruc}</div>
-              </div>
-            </DropdownMenuItem>
-          ))}
-
-          <DropdownMenuSeparator />
-
-          {/* Opciones adicionales */}
-          <DropdownMenuItem onClick={handleEditCompany} className="flex cursor-pointer items-center gap-2">
-            <Edit className="h-4 w-4" />
-            <span>Editar Compañía Actual</span>
-          </DropdownMenuItem>
-
-          <DropdownMenuItem className="flex cursor-pointer items-center gap-2" asChild={true}>
-            <Link href={route('company.create')}>
-              <Plus className="h-4 w-4" />
-              <span>Crear Nueva Compañía</span>
-            </Link>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    );
-  };
-
   const customBreadcrumbs: BreadcrumbItemType[] = [
     {
-      title: renderCompanySelector(),
+      title: <CompanySwitcher />,
       href: '/dashboard',
     },
   ];

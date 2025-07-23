@@ -66,7 +66,6 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsToMany(Company::class, 'company_users')
             ->withPivot([
-                'role_id',
                 'is_active',
                 'is_default',
                 'is_owner',
