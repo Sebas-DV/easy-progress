@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Team\TeamCreateRequest;
 use App\Models\Team;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -11,7 +12,7 @@ use Throwable;
 
 class TeamController extends Controller
 {
-    public function add(TeamCreateRequest $request)
+    public function add(TeamCreateRequest $request): RedirectResponse
     {
         try
         {

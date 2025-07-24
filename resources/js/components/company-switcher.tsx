@@ -18,11 +18,13 @@ export function CompanySwitcher() {
 
   if (companies?.length === 0) {
     return (
-      <Button variant="ghost" className="h-auto p-0 font-normal text-foreground hover:bg-transparent focus:ring-0">
-        <div className="flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          <span className="text-muted-foreground">Crear Compañía</span>
-        </div>
+      <Button variant="outline" className="font-normal hover:bg-transparent focus:ring-0" asChild={true}>
+        <Link href={route('company.create')}>
+          <div className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            <span>Crear Compañía</span>
+          </div>
+        </Link>
       </Button>
     );
   }

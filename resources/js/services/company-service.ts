@@ -4,6 +4,22 @@ import axios from 'axios';
 export class CompanyService {
   static createCompany(request: CreateCompanyRequest): Promise<void> {
     return new Promise((resolve, reject) => {
+      /*
+      *  router.post(
+        route('companies.create'),
+        { ...request },
+        {
+          onSuccess: () => {
+            resolve();
+          },
+          onError: (errors) => {
+            reject(new Error(Object.values(errors)[0] as string));
+          },
+          preserveState: false,
+          preserveScroll: true,
+          fresh: true,
+        },
+      );*/
       axios
         .post(route('companies.create'), request)
         .then(() => {
@@ -18,6 +34,11 @@ export class CompanyService {
           }
         });
     });
+
+    /*
+
+    });
+    */
   }
 
   static async getUserCompanies(): Promise<UserCompanyResponse> {

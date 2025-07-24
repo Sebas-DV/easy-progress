@@ -9,6 +9,7 @@ use App\Models\CompanyUser;
 use App\Services\FileHandler;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -72,8 +73,8 @@ class CompanyController extends Controller
                 }
 
                 return response()->json([
-                    'message' => 'Company created successfully.',
                     'success' => true,
+                    'message' => 'Company created successfully.',
                 ]);
             });
         }

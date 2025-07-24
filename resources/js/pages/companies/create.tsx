@@ -10,16 +10,7 @@ export default function () {
   const { mutate: createCompany } = useCreateCompany();
 
   const handleSubmit = (data: unknown) => {
-    console.log(data);
-
-    createCompany(data, {
-      onSuccess: () => {
-        console.log('Company created successfully');
-      },
-      onError: (error: Error) => {
-        console.error('Error creating company:', error.message);
-      },
-    });
+    createCompany(data);
   };
 
   const companyId = nanoid(10);
